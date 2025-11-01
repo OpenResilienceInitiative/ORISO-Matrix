@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matrix-synapse
+  namespace: caritas
+  labels:
+    app: matrix-synapse
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: matrix-synapse
+  template:
+    metadata:
+      labels:
+        app: matrix-synapse
+    spec:
+      containers:
+      - name: synapse
+        image: matrixdotorg/synapse:latest
+        ports:
+        - containerPort: 8008
+          protocol: TCP
+        - containerPort: 8009
+          protocol: TCP
+        env:
+        - name: SYNAPSE_SERVER_NAME
+          value: "91.99.219.182"
+        - name: SYNAPSE_REPORT_STATS
+          value: "no"
+        - name: SYNAPSE_ENABLE_AUTHENTICATED_MEDIA
+          value: "false"
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        volumeMounts:
+        - name: synapse-data
+          mountPath: /data
+        - name: homeserver-config
+          mountPath: /data/homeserver.yaml
+          subPath: homeserver.yaml
+        livenessProbe:
+          httpGet:
+            path: /_matrix/client/versions
+            port: 8008
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /_matrix/client/versions
+            port: 8008
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: synapse-data
+        persistentVolumeClaim:
+          claimName: matrix-synapse-data
+      - name: homeserver-config
+        configMap:
+          name: matrix-homeserver-oidc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matrix-synapse
+  namespace: caritas
+  labels:
+    app: matrix-synapse
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 91.99.219.182
+  selector:
+    app: matrix-synapse
+  ports:
+  - name: client
+    port: 8008
+    targetPort: 8008
+    protocol: TCP
+  - name: federation
+    port: 8009
+    targetPort: 8009
+    protocol: TCP
+

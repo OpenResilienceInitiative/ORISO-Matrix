@@ -1,0 +1,79 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"matrix-synapse"},"name":"matrix-synapse","namespace":"caritas"},"spec":{"ports":[{"name":"client-api","port":8008,"protocol":"TCP","targetPort":8008},{"name":"federation","port":8009,"protocol":"TCP","targetPort":8009}],"selector":{"app":"matrix-synapse"},"type":"LoadBalancer"}}
+    creationTimestamp: "2025-10-22T20:02:42Z"
+    finalizers:
+    - service.kubernetes.io/load-balancer-cleanup
+    labels:
+      app: matrix-synapse
+    name: matrix-synapse
+    namespace: caritas
+    resourceVersion: "376531"
+    uid: 67e4c07d-838a-421a-9b45-83e0f3780ca9
+  spec:
+    allocateLoadBalancerNodePorts: true
+    clusterIP: 10.43.57.109
+    clusterIPs:
+    - 10.43.57.109
+    externalTrafficPolicy: Cluster
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: client-api
+      nodePort: 30292
+      port: 8008
+      protocol: TCP
+      targetPort: 8008
+    - name: federation
+      nodePort: 32469
+      port: 8009
+      protocol: TCP
+      targetPort: 8009
+    selector:
+      app: matrix-synapse
+    sessionAffinity: None
+    type: LoadBalancer
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 91.99.219.182
+        ipMode: VIP
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"matrix-postgres-service","namespace":"caritas"},"spec":{"ports":[{"port":5432,"protocol":"TCP","targetPort":5432}],"selector":{"app":"matrix-postgres"},"type":"ClusterIP"}}
+    creationTimestamp: "2025-10-20T18:13:40Z"
+    name: matrix-postgres-service
+    namespace: caritas
+    resourceVersion: "281942"
+    uid: 0492d9cc-98c0-4d54-8f1d-9a5296715efb
+  spec:
+    clusterIP: 10.43.140.77
+    clusterIPs:
+    - 10.43.140.77
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+    selector:
+      app: matrix-postgres
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+kind: List
+metadata:
+  resourceVersion: ""
