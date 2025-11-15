@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matrix-discovery
+  namespace: caritas
+  labels:
+    app: matrix-discovery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: matrix-discovery
+  template:
+    metadata:
+      labels:
+        app: matrix-discovery
+    spec:
+      hostNetwork: true
+      containers:
+      - name: discovery
+        image: python:3.9-slim
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          echo '{"m.server": "caritas.local:8448"}' > /tmp/server.json
+          echo '{"m.homeserver": {"base_url": "http://91.99.219.182:8008"}}' > /tmp/client.json
+          cd /tmp && python3 -m http.server 8013
+        ports:
+        - containerPort: 8013
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+

@@ -1,0 +1,108 @@
+server_name: "91.99.219.182"
+pid_file: /data/homeserver.pid
+
+listeners:
+  - port: 8008
+    tls: false
+    type: http
+    x_forwarded: true
+    bind_addresses: ["0.0.0.0"]
+    resources:
+      - names: [client, federation]
+        compress: false
+
+database:
+  name: sqlite3
+  args:
+    database: /data/homeserver.db
+
+redis:
+  enabled: true
+  host: redis
+  port: 6379
+  password: caritas123
+  dbid: 0
+
+caches:
+  global_factor: 1.0
+  per_cache_factors:
+    get_users_in_room: 10.0
+    get_remote_users_in_room: 10.0
+
+media_store_path: /data/media_store
+
+# Disable authenticated media requirement
+enable_authenticated_media: false
+matrix_synapse_enable_authenticated_media: false
+
+registration_shared_secret: "caritas-registration-secret-2025"
+report_stats: false
+enable_registration: true
+enable_registration_without_verification: true
+public_baseurl: "http://91.99.219.182:8008"
+
+suppress_key_validation_warnings: true
+trusted_key_servers:
+  - server_name: "matrix.org"
+    accept_keys_insecurely: true
+
+# TURN/STUN configuration for WebRTC calls
+turn_uris:
+  - "stun:stun.l.google.com:19302"
+  - "stun:stun1.l.google.com:19302"
+turn_allow_guests: true
+
+# Rate limiting - set to 100000 to effectively never hit limits
+rc_message:
+  per_second: 100000
+  burst_count: 100000
+
+rc_registration:
+  per_second: 100000
+  burst_count: 100000
+
+rc_login:
+  address:
+    per_second: 100000
+    burst_count: 100000
+  account:
+    per_second: 100000
+    burst_count: 100000
+  failed_attempts:
+    per_second: 100000
+    burst_count: 100000
+
+rc_admin_redaction:
+  per_second: 100000
+  burst_count: 100000
+
+rc_joins:
+  local:
+    per_second: 100000
+    burst_count: 100000
+  remote:
+    per_second: 100000
+    burst_count: 100000
+
+rc_3pid_validation:
+  per_second: 100000
+  burst_count: 100000
+
+rc_invites:
+  per_room:
+    per_second: 100000
+    burst_count: 100000
+  per_user:
+    per_second: 100000
+    burst_count: 100000
+
+# Exempt internal network from rate limiting
+exempt_from_ratelimiting:
+  - "10.42.0.0/16"
+  - "91.99.219.182"
+  - "127.0.0.1"
+
+# Enable Sliding Sync (Matrix 2.0) for INSTANT real-time synchronization
+experimental_features:
+  msc3575_enabled: true
+  msc3575_for_workers: true
