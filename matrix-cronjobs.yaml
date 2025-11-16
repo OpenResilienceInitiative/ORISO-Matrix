@@ -32,7 +32,7 @@ metadata:
       Extract and restore\\ngunzip -c ${BACKUP_NAME} | psql -U synapse -d synapse\\n\\\\`\\\\`\\\\`\\n\\n---\\n*Automated
       backup from Caritas Matrix infrastructure*\\nEOF\\n\\n# Commit and push\\ngit
       add .\\ngit commit -m \\\"Matrix backup: $(date +%Y-%m-%d_%H:%M:%S) - ${BACKUP_SIZE}\\\"\\n\\n#
-      Push to GitHub (using the same token as MariaDB)\\ngit remote add origin https://YOUR_GITHUB_TOKEN@github.com/ALI-RUBASS/caritas-matrix-backups.git
+      Push to GitHub (using the same token as MariaDB)\\ngit remote add origin https://REPLACE_WITH_YOUR_TOKEN@github.com/ALI-RUBASS/caritas-matrix-backups.git
       2\\u003e/dev/null || true\\ngit branch -M main\\ngit push origin main --force\\n\\necho
       \\\"\\\"\\necho \\\"==========================================\\\"\\necho \\\"✅
       Backup completed and pushed to GitHub!\\\"\\necho \\\"Repository: ALI-RUBASS/caritas-matrix-backups\\\"\\necho
@@ -91,7 +91,7 @@ spec:
               backup from Caritas Matrix infrastructure*\nEOF\n\n# Commit and push\ngit
               add .\ngit commit -m \"Matrix backup: $(date +%Y-%m-%d_%H:%M:%S) - ${BACKUP_SIZE}\"\n\n#
               Push to GitHub (using the same token as MariaDB)\ngit remote add origin
-              https://YOUR_GITHUB_TOKEN@github.com/ALI-RUBASS/caritas-matrix-backups.git
+              https://REPLACE_WITH_YOUR_TOKEN@github.com/ALI-RUBASS/caritas-matrix-backups.git
               2>/dev/null || true\ngit branch -M main\ngit push origin main --force\n\necho
               \"\"\necho \"==========================================\"\necho \"✅
               Backup completed and pushed to GitHub!\"\necho \"Repository: ALI-RUBASS/caritas-matrix-backups\"\necho
