@@ -1,0 +1,17 @@
+FROM postgres:15-alpine
+
+# Copy custom PostgreSQL configuration if provided
+# Note: In Kubernetes, this is typically provided via ConfigMap
+# This Dockerfile allows for custom builds with baked-in configs if needed
+COPY postgresql.conf /etc/postgresql/postgresql.conf 2>/dev/null || true
+
+# Expose PostgreSQL port
+EXPOSE 5432
+
+# Health check
+HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=3 \
+  CMD pg_isready -U ${POSTGRES_USER:-postgres} || exit 1
+
+# Use the default entrypoint from base image
+# The postgresql.conf will be mounted via ConfigMap in Kubernetes
+
