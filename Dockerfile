@@ -1,9 +1,7 @@
 FROM matrixdotorg/synapse:latest
 
-# Copy custom homeserver configuration if provided
-# Note: In Kubernetes, this is typically provided via ConfigMap
-# This Dockerfile allows for custom builds with baked-in configs if needed
-COPY homeserver.yaml /data/homeserver.yaml 2>/dev/null || true
+# Note: In Kubernetes, homeserver.yaml is provided via ConfigMap
+# This Dockerfile builds the base image without baked-in configs
 
 # Expose Matrix Synapse ports
 EXPOSE 8008 8009
@@ -14,4 +12,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
 
 # Use the default entrypoint from base image
 # The homeserver.yaml will be mounted via ConfigMap in Kubernetes
+
 
