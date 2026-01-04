@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"PersistentVolumeClaim","metadata":{"annotations":{},"name":"matrix-postgres-backup-pvc","namespace":"caritas"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"50Gi"}},"storageClassName":"local-path"}}
+    pv.kubernetes.io/bind-completed: "yes"
+    pv.kubernetes.io/bound-by-controller: "yes"
+    volume.beta.kubernetes.io/storage-provisioner: rancher.io/local-path
+    volume.kubernetes.io/selected-node: cartias-test1
+    volume.kubernetes.io/storage-provisioner: rancher.io/local-path
+  creationTimestamp: "2025-10-20T18:13:40Z"
+  finalizers:
+  - kubernetes.io/pvc-protection
+  name: matrix-postgres-backup-pvc
+  namespace: caritas
+  resourceVersion: "281989"
+  uid: 23f0330c-a7bd-4512-befd-7590090087f4
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: local-path
+  volumeMode: Filesystem
+  volumeName: pvc-23f0330c-a7bd-4512-befd-7590090087f4
+status:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 50Gi
+  phase: Bound
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"PersistentVolumeClaim","metadata":{"annotations":{},"name":"matrix-postgres-pvc","namespace":"caritas"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"20Gi"}},"storageClassName":"local-path"}}
+    pv.kubernetes.io/bind-completed: "yes"
+    pv.kubernetes.io/bound-by-controller: "yes"
+    volume.beta.kubernetes.io/storage-provisioner: rancher.io/local-path
+    volume.kubernetes.io/selected-node: cartias-test1
+    volume.kubernetes.io/storage-provisioner: rancher.io/local-path
+  creationTimestamp: "2025-10-20T18:13:40Z"
+  finalizers:
+  - kubernetes.io/pvc-protection
+  name: matrix-postgres-pvc
+  namespace: caritas
+  resourceVersion: "281986"
+  uid: 34b57ad7-b732-4f65-9834-d57bca8cf895
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: local-path
+  volumeMode: Filesystem
+  volumeName: pvc-34b57ad7-b732-4f65-9834-d57bca8cf895
+status:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 20Gi
+  phase: Bound
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"PersistentVolumeClaim","metadata":{"annotations":{},"name":"matrix-synapse-data","namespace":"caritas"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"10Gi"}},"storageClassName":"local-path"}}
+    pv.kubernetes.io/bind-completed: "yes"
+    pv.kubernetes.io/bound-by-controller: "yes"
+    volume.beta.kubernetes.io/storage-provisioner: rancher.io/local-path
+    volume.kubernetes.io/selected-node: cartias-test1
+    volume.kubernetes.io/storage-provisioner: rancher.io/local-path
+  creationTimestamp: "2025-10-27T02:44:18Z"
+  finalizers:
+  - kubernetes.io/pvc-protection
+  name: matrix-synapse-data
+  namespace: caritas
+  resourceVersion: "674873"
+  uid: 15483d66-f8db-409e-9c62-7289d4bdf342
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: local-path
+  volumeMode: Filesystem
+  volumeName: pvc-15483d66-f8db-409e-9c62-7289d4bdf342
+status:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 10Gi
+  phase: Bound

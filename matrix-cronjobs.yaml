@@ -1,0 +1,185 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: "{\"apiVersion\":\"batch/v1\",\"kind\":\"CronJob\",\"metadata\":{\"annotations\":{},\"name\":\"matrix-backup-cronjob-github\",\"namespace\":\"caritas\"},\"spec\":{\"concurrencyPolicy\":\"Forbid\",\"failedJobsHistoryLimit\":1,\"jobTemplate\":{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"command\":[\"/bin/sh\",\"-c\",\"echo
+      \\\"==========================================\\\"\\necho \\\"Matrix PostgreSQL
+      Backup with GitHub Push\\\"\\necho \\\"Started at: $(date)\\\"\\necho \\\"==========================================\\\"\\n\\n#
+      Install dependencies\\napk add --no-cache git curl bash\\n\\n# Database connection
+      details\\nexport PGHOST=\\\"matrix-postgres-service\\\"\\nexport PGPORT=\\\"5432\\\"\\nexport
+      PGUSER=\\\"synapse\\\"\\nexport PGPASSWORD=\\\"synapse_secure_password_2025\\\"\\nexport
+      PGDATABASE=\\\"synapse\\\"\\n\\n# Create backup\\necho \\\"\U0001F4BE Creating
+      database backup...\\\"\\npg_dump --format=plain --no-owner --no-acl --encoding=UTF8
+      --compress=0 ${PGDATABASE} | gzip -9 \\u003e /tmp/matrix-backup.sql.gz\\n\\nBACKUP_SIZE=$(du
+      -h /tmp/matrix-backup.sql.gz | cut -f1)\\necho \\\"✅ Backup created: ${BACKUP_SIZE}\\\"\\n\\n#
+      Generate checksum\\ncd /tmp\\nsha256sum matrix-backup.sql.gz \\u003e matrix-backup.sql.gz.sha256\\n\\n#
+      Get database stats\\nDB_SIZE=$(psql -t -c \\\"SELECT pg_size_pretty(pg_database_size('${PGDATABASE}'));\\\")\\nTABLE_COUNT=$(psql
+      -t -c \\\"SELECT count(*) FROM information_schema.tables WHERE table_schema
+      = 'public';\\\")\\n\\n# Setup git repo\\necho \\\"\U0001F4E6 Preparing GitHub
+      push...\\\"\\nmkdir -p /tmp/repo \\u0026\\u0026 cd /tmp/repo\\ngit init\\ngit
+      config user.name \\\"Caritas Backup Bot\\\"\\ngit config user.email \\\"backup@caritas.local\\\"\\n\\n#
+      Copy backup files\\nmkdir -p matrix-backups\\nBACKUP_NAME=\\\"matrix-synapse-backup-$(date
+      +%Y%m%d-%H%M).sql.gz\\\"\\ncp /tmp/matrix-backup.sql.gz \\\"matrix-backups/${BACKUP_NAME}\\\"\\ncp
+      /tmp/matrix-backup.sql.gz.sha256 \\\"matrix-backups/${BACKUP_NAME}.sha256\\\"\\n\\n#
+      Create README\\ncat \\u003e matrix-backups/README.md \\u003c\\u003c EOF\\n#
+      Matrix Synapse Database Backup\\n\\n**Backup Date**: $(date)\\n**Database**:
+      synapse (PostgreSQL 15)\\n**Backup Size**: ${BACKUP_SIZE}\\n**Database Size**:
+      ${DB_SIZE}\\n**Tables**: ${TABLE_COUNT}\\n\\n## Latest Backup\\n- File: ${BACKUP_NAME}\\n-
+      Checksum: $(cat matrix-backups/${BACKUP_NAME}.sha256)\\n\\n## Backup Information\\n-
+      **Format**: PostgreSQL SQL dump (compressed with gzip)\\n- **Compression**:
+      Level 9\\n- **Retention**: Managed by repository\\n- **Automated**: Daily at
+      02:00 UTC\\n\\n## Restore Instructions\\n\\\\`\\\\`\\\\`bash\\n# Download backup\\n#
+      Extract and restore\\ngunzip -c ${BACKUP_NAME} | psql -U synapse -d synapse\\n\\\\`\\\\`\\\\`\\n\\n---\\n*Automated
+      backup from Caritas Matrix infrastructure*\\nEOF\\n\\n# Commit and push\\ngit
+      add .\\ngit commit -m \\\"Matrix backup: $(date +%Y-%m-%d_%H:%M:%S) - ${BACKUP_SIZE}\\\"\\n\\n#
+      Push to GitHub (using the same token as MariaDB)\\ngit remote add origin https://REPLACE_WITH_YOUR_TOKEN@github.com/ALI-RUBASS/caritas-matrix-backups.git
+      2\\u003e/dev/null || true\\ngit branch -M main\\ngit push origin main --force\\n\\necho
+      \\\"\\\"\\necho \\\"==========================================\\\"\\necho \\\"✅
+      Backup completed and pushed to GitHub!\\\"\\necho \\\"Repository: ALI-RUBASS/caritas-matrix-backups\\\"\\necho
+      \\\"Backup file: ${BACKUP_NAME}\\\"\\necho \\\"Backup size: ${BACKUP_SIZE}\\\"\\necho
+      \\\"Finished at: $(date)\\\"\\necho \\\"==========================================\\\"\\n\"],\"image\":\"postgres:15-alpine\",\"name\":\"matrix-backup\"}],\"restartPolicy\":\"OnFailure\"}}}},\"schedule\":\"0
+      2 * * *\",\"successfulJobsHistoryLimit\":3}}\n"
+  creationTimestamp: "2025-10-20T18:32:59Z"
+  generation: 1
+  name: matrix-backup-cronjob-github
+  namespace: caritas
+  resourceVersion: "944597"
+  uid: c9db556b-a4aa-43bd-972d-b9cfe8e8d7b4
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - command:
+            - /bin/sh
+            - -c
+            - "echo \"==========================================\"\necho \"Matrix
+              PostgreSQL Backup with GitHub Push\"\necho \"Started at: $(date)\"\necho
+              \"==========================================\"\n\n# Install dependencies\napk
+              add --no-cache git curl bash\n\n# Database connection details\nexport
+              PGHOST=\"matrix-postgres-service\"\nexport PGPORT=\"5432\"\nexport PGUSER=\"synapse\"\nexport
+              PGPASSWORD=\"synapse_secure_password_2025\"\nexport PGDATABASE=\"synapse\"\n\n#
+              Create backup\necho \"\U0001F4BE Creating database backup...\"\npg_dump
+              --format=plain --no-owner --no-acl --encoding=UTF8 --compress=0 ${PGDATABASE}
+              | gzip -9 > /tmp/matrix-backup.sql.gz\n\nBACKUP_SIZE=$(du -h /tmp/matrix-backup.sql.gz
+              | cut -f1)\necho \"✅ Backup created: ${BACKUP_SIZE}\"\n\n# Generate
+              checksum\ncd /tmp\nsha256sum matrix-backup.sql.gz > matrix-backup.sql.gz.sha256\n\n#
+              Get database stats\nDB_SIZE=$(psql -t -c \"SELECT pg_size_pretty(pg_database_size('${PGDATABASE}'));\")\nTABLE_COUNT=$(psql
+              -t -c \"SELECT count(*) FROM information_schema.tables WHERE table_schema
+              = 'public';\")\n\n# Setup git repo\necho \"\U0001F4E6 Preparing GitHub
+              push...\"\nmkdir -p /tmp/repo && cd /tmp/repo\ngit init\ngit config
+              user.name \"Caritas Backup Bot\"\ngit config user.email \"backup@caritas.local\"\n\n#
+              Copy backup files\nmkdir -p matrix-backups\nBACKUP_NAME=\"matrix-synapse-backup-$(date
+              +%Y%m%d-%H%M).sql.gz\"\ncp /tmp/matrix-backup.sql.gz \"matrix-backups/${BACKUP_NAME}\"\ncp
+              /tmp/matrix-backup.sql.gz.sha256 \"matrix-backups/${BACKUP_NAME}.sha256\"\n\n#
+              Create README\ncat > matrix-backups/README.md << EOF\n# Matrix Synapse
+              Database Backup\n\n**Backup Date**: $(date)\n**Database**: synapse (PostgreSQL
+              15)\n**Backup Size**: ${BACKUP_SIZE}\n**Database Size**: ${DB_SIZE}\n**Tables**:
+              ${TABLE_COUNT}\n\n## Latest Backup\n- File: ${BACKUP_NAME}\n- Checksum:
+              $(cat matrix-backups/${BACKUP_NAME}.sha256)\n\n## Backup Information\n-
+              **Format**: PostgreSQL SQL dump (compressed with gzip)\n- **Compression**:
+              Level 9\n- **Retention**: Managed by repository\n- **Automated**: Daily
+              at 02:00 UTC\n\n## Restore Instructions\n\\`\\`\\`bash\n# Download backup\n#
+              Extract and restore\ngunzip -c ${BACKUP_NAME} | psql -U synapse -d synapse\n\\`\\`\\`\n\n---\n*Automated
+              backup from Caritas Matrix infrastructure*\nEOF\n\n# Commit and push\ngit
+              add .\ngit commit -m \"Matrix backup: $(date +%Y-%m-%d_%H:%M:%S) - ${BACKUP_SIZE}\"\n\n#
+              Push to GitHub (using the same token as MariaDB)\ngit remote add origin
+              https://REPLACE_WITH_YOUR_TOKEN@github.com/ALI-RUBASS/caritas-matrix-backups.git
+              2>/dev/null || true\ngit branch -M main\ngit push origin main --force\n\necho
+              \"\"\necho \"==========================================\"\necho \"✅
+              Backup completed and pushed to GitHub!\"\necho \"Repository: ALI-RUBASS/caritas-matrix-backups\"\necho
+              \"Backup file: ${BACKUP_NAME}\"\necho \"Backup size: ${BACKUP_SIZE}\"\necho
+              \"Finished at: $(date)\"\necho \"==========================================\"\n"
+            image: postgres:15-alpine
+            imagePullPolicy: IfNotPresent
+            name: matrix-backup
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: OnFailure
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+  schedule: 0 2 * * *
+  successfulJobsHistoryLimit: 3
+  suspend: false
+status:
+  lastScheduleTime: "2025-10-31T02:00:00Z"
+  lastSuccessfulTime: "2025-10-31T02:00:04Z"
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"batch/v1","kind":"CronJob","metadata":{"annotations":{},"name":"matrix-keycloak-sync","namespace":"caritas"},"spec":{"jobTemplate":{"spec":{"template":{"spec":{"containers":[{"command":["/bin/bash","-c","apk add --no-cache curl sqlite\n/scripts/sync.sh\n"],"image":"bitnami/kubectl:latest","name":"sync","volumeMounts":[{"mountPath":"/scripts","name":"sync-script"}]}],"restartPolicy":"OnFailure","serviceAccountName":"default","volumes":[{"configMap":{"defaultMode":493,"name":"matrix-keycloak-sync-script"},"name":"sync-script"}]}}}},"schedule":"*/5 * * * *"}}
+  creationTimestamp: "2025-10-21T20:46:51Z"
+  generation: 1
+  name: matrix-keycloak-sync
+  namespace: caritas
+  resourceVersion: "1003441"
+  uid: 85037a64-0a8c-481a-99ea-37541ae36817
+spec:
+  concurrencyPolicy: Allow
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - command:
+            - /bin/bash
+            - -c
+            - |
+              apk add --no-cache curl sqlite
+              /scripts/sync.sh
+            image: bitnami/kubectl:latest
+            imagePullPolicy: Always
+            name: sync
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+            - mountPath: /scripts
+              name: sync-script
+          dnsPolicy: ClusterFirst
+          restartPolicy: OnFailure
+          schedulerName: default-scheduler
+          securityContext: {}
+          serviceAccount: default
+          serviceAccountName: default
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - configMap:
+              defaultMode: 493
+              name: matrix-keycloak-sync-script
+            name: sync-script
+  schedule: '*/5 * * * *'
+  successfulJobsHistoryLimit: 3
+  suspend: false
+status:
+  active:
+  - apiVersion: batch/v1
+    kind: Job
+    name: matrix-keycloak-sync-29365735
+    namespace: caritas
+    resourceVersion: "1003216"
+    uid: 310f90ab-6527-4b15-8688-9e96336ae49f
+  - apiVersion: batch/v1
+    kind: Job
+    name: matrix-keycloak-sync-29365740
+    namespace: caritas
+    resourceVersion: "1003440"
+    uid: d0e2be2a-0a42-47c3-b373-ded08956ec8d
+  lastScheduleTime: "2025-10-31T21:00:00Z"

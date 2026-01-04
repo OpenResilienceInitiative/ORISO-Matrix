@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"StatefulSet","metadata":{"annotations":{},"name":"matrix-postgres","namespace":"caritas"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"matrix-postgres"}},"serviceName":"matrix-postgres-service","template":{"metadata":{"labels":{"app":"matrix-postgres"}},"spec":{"containers":[{"env":[{"name":"POSTGRES_USER","valueFrom":{"secretKeyRef":{"key":"POSTGRES_USER","name":"matrix-postgres-secret"}}},{"name":"POSTGRES_PASSWORD","valueFrom":{"secretKeyRef":{"key":"POSTGRES_PASSWORD","name":"matrix-postgres-secret"}}},{"name":"POSTGRES_DB","valueFrom":{"secretKeyRef":{"key":"POSTGRES_DB","name":"matrix-postgres-secret"}}},{"name":"PGDATA","value":"/var/lib/postgresql/data/pgdata"}],"image":"postgres:15-alpine","livenessProbe":{"exec":{"command":["/bin/sh","-c","pg_isready -U $POSTGRES_USER"]},"initialDelaySeconds":30,"periodSeconds":10},"name":"postgres","ports":[{"containerPort":5432,"name":"postgres"}],"readinessProbe":{"exec":{"command":["/bin/sh","-c","pg_isready -U $POSTGRES_USER"]},"initialDelaySeconds":5,"periodSeconds":5},"resources":{"limits":{"cpu":"1000m","memory":"2Gi"},"requests":{"cpu":"250m","memory":"512Mi"}},"volumeMounts":[{"mountPath":"/var/lib/postgresql/data","name":"postgres-storage"},{"mountPath":"/backup","name":"postgres-backup"},{"mountPath":"/etc/postgresql/postgresql.conf","name":"postgres-config","subPath":"postgresql.conf"}]}],"volumes":[{"name":"postgres-storage","persistentVolumeClaim":{"claimName":"matrix-postgres-pvc"}},{"name":"postgres-backup","persistentVolumeClaim":{"claimName":"matrix-postgres-backup-pvc"}},{"configMap":{"name":"matrix-postgres-config"},"name":"postgres-config"}]}}}}
+  creationTimestamp: "2025-10-20T18:13:40Z"
+  generation: 1
+  name: matrix-postgres
+  namespace: caritas
+  resourceVersion: "282238"
+  uid: 1db76997-a920-4312-8b1f-c3b90e1c0aa0
+spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: matrix-postgres
+  serviceName: matrix-postgres-service
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: matrix-postgres
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              key: POSTGRES_USER
+              name: matrix-postgres-secret
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: POSTGRES_PASSWORD
+              name: matrix-postgres-secret
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              key: POSTGRES_DB
+              name: matrix-postgres-secret
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        image: postgres:15-alpine
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - pg_isready -U $POSTGRES_USER
+          failureThreshold: 3
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: postgres
+        ports:
+        - containerPort: 5432
+          name: postgres
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - pg_isready -U $POSTGRES_USER
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "1"
+            memory: 2Gi
+          requests:
+            cpu: 250m
+            memory: 512Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgres-storage
+        - mountPath: /backup
+          name: postgres-backup
+        - mountPath: /etc/postgresql/postgresql.conf
+          name: postgres-config
+          subPath: postgresql.conf
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: matrix-postgres-pvc
+      - name: postgres-backup
+        persistentVolumeClaim:
+          claimName: matrix-postgres-backup-pvc
+      - configMap:
+          defaultMode: 420
+          name: matrix-postgres-config
+        name: postgres-config
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+status:
+  availableReplicas: 1
+  collisionCount: 0
+  currentReplicas: 1
+  currentRevision: matrix-postgres-65787bb657
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  updateRevision: matrix-postgres-65787bb657
+  updatedReplicas: 1
