@@ -1,0 +1,144 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    meta.helm.sh/release-name: oriso-platform
+    meta.helm.sh/release-namespace: caritas
+  creationTimestamp: "2025-12-27T01:47:40Z"
+  generation: 6
+  labels:
+    app: matrix-synapse
+    app.kubernetes.io/instance: oriso-platform
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: matrix-synapse
+    helm.sh/chart: matrix-synapse-1.0.0
+  name: oriso-platform-matrix-synapse
+  namespace: caritas
+  resourceVersion: "5151567"
+  uid: 7b4e8018-13a4-44b8-9a07-b81ef0aa5a5a
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: matrix-synapse
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: matrix-synapse
+    spec:
+      containers:
+      - env:
+        - name: SYNAPSE_SERVER_NAME
+          value: oriso-dev.site
+        - name: SYNAPSE_REPORT_STATS
+          value: "no"
+        - name: SYNAPSE_ENABLE_AUTHENTICATED_MEDIA
+          value: "false"
+        image: matrixdotorg/synapse:latest
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /_matrix/client/versions
+            port: 8008
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: synapse
+        ports:
+        - containerPort: 8008
+          name: http
+          protocol: TCP
+        - containerPort: 8009
+          name: federation
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /_matrix/client/versions
+            port: 8008
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "3"
+            memory: 6Gi
+          requests:
+            cpu: 1500m
+            memory: 3Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: synapse-data
+        - mountPath: /data/homeserver.yaml
+          name: homeserver-config
+          subPath: homeserver.yaml
+      dnsPolicy: ClusterFirst
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - |
+          chown -R 991:991 /data || true
+          chmod -R u+w /data || true
+        image: busybox:latest
+        imagePullPolicy: Always
+        name: fix-permissions
+        resources: {}
+        securityContext:
+          runAsUser: 0
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: synapse-data
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 991
+        runAsGroup: 991
+        runAsUser: 991
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: synapse-data
+        persistentVolumeClaim:
+          claimName: matrix-synapse-data
+      - configMap:
+          defaultMode: 420
+          name: matrix-homeserver-oidc
+        name: homeserver-config
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2025-12-27T02:04:26Z"
+    lastUpdateTime: "2025-12-27T02:04:26Z"
+    message: ReplicaSet "oriso-platform-matrix-synapse-57bc749b97" has successfully
+      progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2026-03-13T06:04:46Z"
+    lastUpdateTime: "2026-03-13T06:04:46Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  observedGeneration: 6
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
